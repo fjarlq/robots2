@@ -1,0 +1,1639 @@
+Relay-Version: version B 2.10 5/3/83; site utzoo.UUCP
+Path: utzoo!utgpu!water!watmath!clyde!cbosgd!ucbvax!ucbcad!ames!ll-xn!husc6!mit-eddie!uw-beaver!tektronix!tekgen!tekred!games-request
+From: games-request@tekred.UUCP
+Newsgroups: comp.sources.games
+Subject: v01i080:  robots2 - Game of robots, version 2
+Message-ID: <1380@tekred.TEK.COM>
+Date: Wed, 8-Jul-87 17:47:06 EDT
+Article-I.D.: tekred.1380
+Posted: Wed Jul  8 17:47:06 1987
+Date-Received: Sat, 11-Jul-87 14:03:12 EDT
+Sender: billr@tekred.TEK.COM
+Lines: 1625
+Approved: billr@tekred.TEK.COM
+
+Submitted by: Julian Onions <jpo@cs.nott.ac.uk>
+Comp.sources.games: Volume 1, Issue 80
+Archive-name: robots2
+
+	[Compiled and ran OK on our 4.3bsdBeta Vax.   -br]
+
+[[An upgraded version of the robots game. Should work on sys5 as well as
+4.2/3 although not test rigorously. The README/manual page
+describes most of the interesting stuff.
+I can be reached as either
+	jpo@cs.nott.ac.uk
+	jpo%cs.nott.ac.uk@ucl-cs.arpa
+	...!seismo!mcvax!ukc!nott-cs!jpo - least preferable.
+
+Julian]]
+
+-----------------------
+#! /bin/sh
+# This is a shell archive.  Remove anything before this line, then unpack
+# it by saving it into a file and typing "sh file".  To overwrite existing
+# files, type "sh file -c".  You can also feed this as standard input via
+# unshar, or by typing "sh <file", e.g..  If this archive is complete, you
+# will see the following message at the end:
+#		"End of shell archive."
+# Contents:  READ_ME Makefile good.c main.c makelog opt.c robot.c
+#   robots.6 robots.h score.c user.c
+# Wrapped by billr@tekred on Wed Jul  8 14:40:28 1987
+PATH=/bin:/usr/bin:/usr/ucb ; export PATH
+if test -f READ_ME -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"READ_ME\"
+else
+echo shar: Extracting \"READ_ME\" \(1371 characters\)
+sed "s/^X//" >READ_ME <<'END_OF_READ_ME'
+XRobots - version 2
+X
+XThis version has several features over the original version but is
+Xstill very much in the same spirit. Amongst the new features are
+X
+X- Fast robots, these are robots that move at twice the speed of
+X	normal robots.
+X- Option settings in the style of rogue.
+X- movable scrap heaps.
+X- random & safe teleports with the ability to choose.
+X- antimatter
+X
+XTo build.
+XIt should build on most sane systems,
+XYou may want to play with some of the variables in Makefile, there
+Xare a couple of version specific things to look for.
+XIf you are on a BSD4.2 or better system add -DBSD42 to the CFLAGS
+Xin the Makefile.
+XSystem 5 may need to remove -ltermcap from the LIBS line in Makefile.
+XAlso if BSD42 is not defined, the score directory needs to be
+Xwritable to lock the files.
+XYou may want to play with the location of the high score files which
+Xare #defined near the begining of robots.h.
+X
+XType make, make install, and enjoy.
+X
+XBugs, comments, flames, offers of cash, aston martins to those below
+X	Julian Onions <jpo@cs.nott.ac.uk>
+X	Graeme Lunt <gal@cs.nott.ac.uk>
+X	Allan Black <allan@cs.strath.ac.uk>
+X
+XStop Press:
+X	Also available from jpo@cs.nott.ac.uk, a version of robomatic
+X	which does a reasonable job of playing the game of robots.
+X	Current high scores are -
+X
+X   1 482538104   Graeme (gal): eaten on level 85.
+X   6   8476863   Robomatic II (jpo): eaten on level 23.
+END_OF_READ_ME
+if test 1371 -ne `wc -c <READ_ME`; then
+    echo shar: \"READ_ME\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f Makefile -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"Makefile\"
+else
+echo shar: Extracting \"Makefile\" \(979 characters\)
+sed "s/^X//" >Makefile <<'END_OF_Makefile'
+X# just -lcurses for SYS V
+XLIBS	= -lcurses -ltermcap
+X# add -DBSD42 for performance wins on 4.2 or better
+XIFDEF	= -DBSD42
+XCFLAGS  = $(IFDEF) #-g
+XLINT	= lint
+XLLFLAGS = -haxbc
+XSHAR	= shar
+XSHFLGS  = -v -c
+XHEADERS = robots.h
+XSRC	= good.c main.c opt.c robot.c score.c user.c
+XOBJS	= good.o main.o opt.o robot.o score.o user.o
+XMAN	= robots.6
+XMISC	= READ_ME Makefile
+XDIST	= $(MISC) $(SRC) $(MAN) $(HEADERS)
+XMANUAL  = /usr/man/man6/robots.6	# where the manual page goes
+XBINARY  = /usr/sheriff/jpo/games			# Where the binary goes
+X
+Xrobots: ${OBJS}
+X	$(CC) $(CFLAGS) -o $@ ${OBJS} $(LIBS)
+X
+Xinstall: robots robots.6
+X	install -s robots $(BINARY)	# or strip robots && mv robots $(BINARY)
+X#	install -c robots.6 $(MANUAL)	# or cp robots.6 $(MANUAL)
+X
+Xtidy: clean
+Xclean:
+X	rm -f ${OBJS} core a.out lint.out shar.out
+X
+Xclobber: clean
+X	rm -f robots
+X
+Xlint: ${SRC} $(HEADERS)
+X	$(LINT) $(LLFLAGS) $(IFDEF) ${SRC} $(LIBS)
+X
+Xshar: shar.out
+Xshar.out: $(DIST)
+X	$(SHAR) $(SHFLGS) $(DIST) > $@
+X
+X${OBJS}: ${HEADERS}
+END_OF_Makefile
+if test 979 -ne `wc -c <Makefile`; then
+    echo shar: \"Makefile\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f good.c -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"good.c\"
+else
+echo shar: Extracting \"good.c\" \(2907 characters\)
+sed "s/^X//" >good.c <<'END_OF_good.c'
+X# include "robots.h"
+X
+X/*
+X * good.c: Figure out all possible good moves.
+X * This piece of code use to be trivial - then fast robots came
+X * and moveable heaps and its now an AI expert system in its own right!
+X */
+X
+Xgood_moves ()
+X{
+X	register int test_x, test_y;
+X	register char *m, *a;
+X	static char moves[] = "hjklyubn.a";
+X	static char ans[sizeof (moves)];
+X	char savebuf[9], savechar;
+X	int i,j, notsilly;
+X
+X	a = ans;
+X	for(m = moves; *m != 'a'; m++) {
+X		test_x = my_x+xinc(*m);
+X		test_y = my_y+yinc(*m);
+X		move(test_y,test_x);
+X		switch(inch()) {
+X			case ' ':
+X			case DOT:
+X			case ME:
+X				if( isgood(test_y, test_x) )
+X					*a++ = *m;
+X				break;
+X			case SCRAP:
+X				if (moveable_heaps) {
+X				int nscrap_x,nscrap_y;
+X				nscrap_x = test_x +xinc(*m);
+X				nscrap_y = test_y +yinc(*m);
+X				move(nscrap_y,nscrap_x);
+X				if (inch() == ' ') {
+X					addch(SCRAP);
+X					if (isgood(test_y,test_x))
+X						*a++ = *m;
+X					move(nscrap_y,nscrap_x);
+X					addch(' ');
+X					}
+X				}
+X				break;
+X		}
+X	}
+X	/* now lets do the antimatter case */
+X	if (free_teleports) {
+X	notsilly = 0;	/* silly to do it if not get robots */
+X	for(i= -1;i <= 1; i++)
+X		for(j= -1; j<= 1; j++) {
+X			move(my_y+i,my_x+j);
+X			savechar = inch();
+X			if (savechar == FROBOT || savechar == ROBOT) {
+X				savebuf[ (i+1)*3 +j +1] = savechar;
+X				addch(' ');
+X				notsilly = 1;
+X				}
+X			else
+X				savebuf[ (i+1)*3 +j +1] = ' ';
+X			}
+X	if( notsilly && isgood(my_y,my_x) )
+X		*a++ = *m;
+X
+X	for(i= -1;i <= 1; i++)
+X		for(j= -1; j<= 1; j++) {
+X			move(my_y+i,my_x+j);
+X			savechar = savebuf[ (i+1)*3 +j +1];
+X			if (savechar == FROBOT || savechar == ROBOT)
+X				addch(savechar);
+X			}
+X	}
+X	*a = 0;
+X	if(ans[0]) {
+X		a = ans;
+X	} else {
+X		a = "Forget it!";
+X	}
+X	mvprintw(LINES-1,MSGPOS,"%-*.*s",RVPOS-MSGPOS,RVPOS-MSGPOS,a);
+X}
+X
+Xisgood(ty,tx)
+Xregister int tx, ty;
+X{
+X	register int x, y;
+X
+X	for(x = -2; x <= 2; x++) {
+X		for(y = -2; y <= 2; y++) {
+X			if ( abs(x) > 1 || abs(y) > 1 ) { /* we are 2 steps out */
+X				if( blocked(ty, tx, y, x))
+X					continue;
+X				move(ty+y,tx+x);
+X				if ( abs(x) == 2 && abs(y) == 2
+X							&& inch() == FROBOT){
+X					return FALSE;	}
+X				if ( x == -1 && scan(ty+y, tx+x, 0, 1) )
+X					return FALSE;
+X				if ( y == -1 && scan(ty+y, tx+x, 1, 0) )
+X					return FALSE;
+X			} /* outer perimeter checked */
+X			else {
+X				move(ty+y,tx+x);
+X				switch(inch()) {
+X					case FROBOT:
+X					case ROBOT: /* robot next to you */
+X						return FALSE;
+X				}
+X			}
+X		}
+X	}
+X	return TRUE;
+X}
+X
+Xscan(y, x, yi, xi) /* scan along this line looking for collision conditions */
+Xint x, y, xi, yi;
+X{
+X	int rcount = 0;
+X	register int ctr;
+X
+X	for(ctr = 0;ctr<=2;ctr++) {
+X		move(y + (ctr*yi), x + (ctr*xi));
+X		switch(inch()) {
+X			case FROBOT:
+X				rcount += 4;
+X				break;
+X			case ROBOT:
+X				rcount ++;
+X				break;
+X		}
+X	}
+X	return rcount == 4;
+X}
+X
+Xblocked(my, mx, y, x)
+Xregister int	my, mx, y, x;
+X{
+X	if ( x < 0 ) x++;
+X	if ( y < 0 ) y++;
+X	if ( x > 0 ) x--;
+X	if ( y > 0 ) y--;
+X	move(my+y, mx+x);
+X	return inch() == SCRAP;
+X}
+END_OF_good.c
+if test 2907 -ne `wc -c <good.c`; then
+    echo shar: \"good.c\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f main.c -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"main.c\"
+else
+echo shar: Extracting \"main.c\" \(6448 characters\)
+sed "s/^X//" >main.c <<'END_OF_main.c'
+X/*
+X *	R O B O T S
+X *
+X *	The game of robots.
+X *	History:
+X *	Original Implementation
+X *		Allan Black <allan@cs.strath.ac.uk>
+X *	Updated for fast robots, moveable heaps, ROBOTOPTS
+X *	antimatter, v7/sys5/4.2 portability etc.
+X *		Graeme Lunt <gal@cs.nott.ac.uk>
+X *		Julian Onions <jpo@cs.nott.ac.uk>
+X *
+X * Provided free as long as you don't make money from it!
+X */
+X
+X# include "robots.h"
+X
+Xchar	whoami[MAXSTR];
+Xchar	my_user_name[MAXSTR];
+Xchar	cmd_ch;
+X
+Xbool	dead = FALSE;
+Xbool	last_stand;
+Xbool	show_highscore = TRUE;
+Xbool	running, adjacent, first_move, bad_move, waiting;
+Xbool	moveable_heaps = TRUE;
+X
+Xint	my_x, my_y;
+Xint	new_x, new_y;
+Xint	level = 0;
+Xint	free_teleports = 0;
+Xint	old_free;
+Xint	free_per_level = 1;
+Xint	count;
+Xint	dots = 0;
+Xint	robot_value = MIN_VALUE;
+Xint	max_robots = MIN_ROBOTS;
+Xint	nrobots_alive;
+Xint	scrap_heaps = 1;  /* to allow for first level */
+X
+Xlong	score = 0;
+Xlong	seed;
+X
+X# ifdef TIOCSLTC
+Xstruct ltchars	ltc;
+Xchar	dsusp;
+X# endif TIOCSLTC
+X
+Xint	interrupt();
+X
+X# define	TERM_UNINIT	00
+X# define	TERM_CURSES	01
+X# define	TERM_LTC	02
+X
+Xint	term_state = TERM_UNINIT;	/* cuts out some race conditions */
+Xchar	*getenv();
+Xstruct	passwd	*getpwuid();
+Xchar	_obuf[BUFSIZ];
+X
+Xmain(argc,argv)
+X	int argc;
+X	char *argv[];
+X{
+X	register struct passwd *pass;
+X	register char *x;
+X	int i;
+X
+X	setbuf(stdout, _obuf);
+X	if(argc > 1) {
+X		if(argv[1][0] == '-') {
+X			switch(argv[1][1]) {
+X			case 's':
+X				show_highscore = TRUE;
+X				scoring(FALSE);
+X				exit(0);
+X			}
+X		}
+X	}
+X	if((pass = getpwuid(getuid())) == 0) {
+X		x = "ANON";
+X	} else {
+X		x = pass->pw_name;
+X	}
+X	(void) strcpy(my_user_name, x);
+X	(void) strcpy(whoami,x);
+X	if((x = getenv(ROBOTOPTS)) != NULL && *x != '\0')
+X		get_robot_opts(x);
+X	seed = time((time_t *)0)+getuid();
+X	(void) signal(SIGQUIT,interrupt);
+X	(void) signal(SIGINT,interrupt);
+X	if( initscr() == ERR) {
+X		fprintf(stderr, "Curses won't initialise - seek a guru\n");
+X		quit(FALSE);
+X	}
+X	term_state |= TERM_CURSES;
+X	crmode();
+X	noecho();
+X# ifdef TIOCSLTC
+X	(void) ioctl(1,TIOCGLTC,&ltc);
+X	dsusp = ltc.t_dsuspc;
+X	ltc.t_dsuspc = ltc.t_suspc;
+X	(void) ioctl(1,TIOCSLTC,&ltc);
+X	term_state |= TERM_LTC;
+X# endif TIOCSLTC
+X	for(;;) {
+X		count = 0;
+X		running = FALSE;
+X		adjacent = FALSE;
+X		waiting = FALSE;
+X		last_stand = FALSE;
+X		old_free = -1;
+X		if(rnd(free_per_level) < free_teleports) {
+X			free_per_level++;
+X			if(free_per_level > MAX_FREE) free_per_level = MAX_FREE;
+X		}
+X		free_teleports += free_per_level;
+X		leaveok(stdscr,FALSE);
+X		draw_screen();
+X		put_robots();
+X		do {
+X			my_x = rndx();
+X			my_y = rndy();
+X			move(my_y,my_x);
+X		} while(inch() != ' ');
+X		addch(ME);
+X		for(;;) {
+X			scorer();
+X			if(nrobots_alive == 0) break;
+X			command();
+X			for(i=1;i<=FASTEST;i++)
+X				robots(i);
+X			if(dead) munch();
+X		}
+X		msg("%d robots are now %d scrap heaps",max_robots, scrap_heaps);
+X		leaveok(stdscr,FALSE);
+X		move(my_y,my_x);
+X		refresh();
+X		(void) readchar();
+X		level++;
+X	}
+X}
+X
+Xdraw_screen()
+X{
+X	register int x, y;
+X	clear();
+X	for(y = 1; y < LINES-2; y++) {
+X		mvaddch(y,0,VERT);
+X		mvaddch(y,COLS-1,VERT);
+X	}
+X	for(x = 0; x < COLS; x++) {
+X		mvaddch(0,x,HORIZ);
+X		mvaddch(LINES-2,x,HORIZ);
+X	}
+X}
+X
+Xreadchar()
+X{
+X	static char buf[1];
+X	extern int errno;
+X
+X	while(read(0,buf,1) != 1)
+X		if( errno != EINTR)
+X			quit(TRUE);
+X	return(buf[0]);
+X}
+X
+Xput_dots()
+X{
+X	register int x, y;
+X	for(x = my_x-dots; x <= my_x+dots; x++) {
+X		for(y = my_y-dots; y <= my_y+dots; y++) {
+X			move(y,x);
+X			if(inch() == ' ') addch(DOT);
+X		}
+X	}
+X}
+X
+Xerase_dots()
+X{
+X	register int x, y;
+X	for(x = my_x-dots; x <= my_x+dots; x++) {
+X		for(y = my_y-dots; y <= my_y+dots; y++) {
+X			move(y,x);
+X			if(inch() == DOT) addch(' ');
+X		}
+X	}
+X}
+X
+Xxinc(dir)
+X	char dir;
+X{
+X	switch(dir) {
+X	case 'h':
+X	case 'y':
+X	case 'b':
+X		return(-1);
+X	case 'l':
+X	case 'u':
+X	case 'n':
+X		return(1);
+X	case 'j':
+X	case 'k':
+X	default:
+X		return(0);
+X	}
+X}
+X
+Xyinc(dir)
+X	char dir;
+X{
+X	switch(dir) {
+X	case 'k':
+X	case 'y':
+X	case 'u':
+X		return(-1);
+X	case 'j':
+X	case 'b':
+X	case 'n':
+X		return(1);
+X	case 'h':
+X	case 'l':
+X	default:
+X		return(0);
+X	}
+X}
+X
+Xmunch()
+X{
+X	scorer();
+X	msg("MUNCH! You're robot food");
+X	leaveok(stdscr,FALSE);
+X	mvaddch(my_y,my_x,MUNCH);
+X	move(my_y,my_x);
+X	refresh();
+X	(void) readchar();
+X	quit(TRUE);
+X}
+X
+Xquit(eaten)
+X	bool eaten;
+X{
+X	if( term_state & TERM_CURSES ) {
+X		move(LINES-1,0);
+X		refresh();
+X		endwin();
+X		term_state &= ~ TERM_CURSES;
+X	}
+X	putchar('\n');
+X# ifdef TIOCSLTC
+X	if( term_state & TERM_LTC ) {
+X		ltc.t_dsuspc = dsusp;
+X		(void) ioctl(1,TIOCSLTC,&ltc);
+X		term_state &= ~ TERM_LTC;
+X	}
+X# endif TIOCSLTC
+X	(void) signal(SIGINT, SIG_DFL);
+X	scoring(eaten);
+X	exit(0);
+X}
+X
+Xrndx()
+X{
+X	return(rnd(COLS-2)+1);
+X}
+X
+Xrndy()
+X{
+X	return(rnd(LINES-3)+1);
+X}
+X
+Xrnd(mod)
+X	int mod;
+X{
+X	if(mod <= 0) return(0);
+X	return((((seed = seed*11109L+13849L) >> 16) & 0xffffL) % mod);
+X}
+X
+X/* VARARGS 1 */
+Xmsg(message,a1, a2, a3, a4, a5, a6, a7)
+X	char *message;
+X	unsigned int a1, a2, a3, a4, a5, a6, a7;
+X{
+X	static char msgbuf[1000];
+X
+X	(void) sprintf(msgbuf, message, a1, a2, a3, a4, a5, a6, a7);
+X	mvaddstr(LINES-1,MSGPOS,msgbuf);
+X	clrtoeol();
+X	refresh();
+X}
+X
+Xinterrupt()
+X{
+X	quit(FALSE);
+X}
+X
+X/*
+X * file locking routines - much nicer under BSD ...
+X */
+X
+X# ifdef BSD42
+Xlk_open(file, mode)	/* lock a file using the flock sys call */
+Xchar	*file;
+Xint	mode;
+X{
+X	int	fd;
+X
+X	if( (fd = open(file, mode)) < 0)
+X		return -1;
+X	if( flock(fd, LOCK_EX) < 0)
+X	{
+X		(void) close(fd);
+X		return -1;
+X	}
+X	return fd;
+X}
+X
+Xlk_close( fd, file)
+Xint	fd;
+Xchar	*file;
+X{
+X# ifdef lint
+X	file = file;	/* now will you shut up lint???? */
+X# endif
+X	return close(fd);
+X}
+X# else
+X
+X# define	LOCKTIME	(60)	/* 1 minute */
+X# include	<sys/stat.h>
+X
+Xlk_open(file, mode)	/* lock a file by crude means */
+Xchar	*file;
+Xint	mode;
+X{
+X	char	tfile[128], lfile[128];
+X	struct	stat stbuf;
+X	time_t	now;
+X	int	fd;
+X
+X	(void) sprintf(tfile, "%s.t", file);	/* temp file */
+X	(void) sprintf(lfile, "%s.l", file);	/* lock file */
+X
+X	if( close(creat(tfile, 0)) < 0)	/* make temp file */
+X		return -1;
+X	while( link(tfile, lfile) == -1) /* now attempt the lock file */
+X	{
+X		if( stat(lfile, &stbuf) < 0)
+X			continue;	/* uhh? -- try again */
+X		time(&now);
+X		/* OK - is this file old? */
+X		if( stbuf.st_mtime + LOCKTIME < now)
+X			unlink(lfile);	/* ok its old enough - junk it */
+X		else	sleep(1);	/* snooze ... */
+X	}
+X	unlink(tfile);	/* tmp files done its job */
+X	if((fd = open(file, mode)) < 0) {
+X		unlink(lfile);
+X		return -1;
+X	}
+X	return fd;
+X}
+X
+Xlk_close(fd, fname)
+Xint	fd;
+Xchar	*fname;
+X{
+X	char	lfile[128];
+X
+X	(void) sprintf(lfile, "%s.l", fname);	/* recreate the lock file name */
+X	if( unlink(lfile) == -1)	/* blow it away */
+X		perror(lfile);
+X	return close(fd);
+X}
+X# endif
+X
+END_OF_main.c
+if test 6448 -ne `wc -c <main.c`; then
+    echo shar: \"main.c\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f makelog -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"makelog\"
+else
+echo shar: Extracting \"makelog\" \(217 characters\)
+sed "s/^X//" >makelog <<'END_OF_makelog'
+Xcc -DBSD42  -c good.c
+Xcc -DBSD42  -c main.c
+Xcc -DBSD42  -c opt.c
+Xcc -DBSD42  -c robot.c
+Xcc -DBSD42  -c score.c
+Xcc -DBSD42  -c user.c
+Xcc -DBSD42  -o robots good.o main.o opt.o robot.o score.o user.o -lcurses -ltermcap
+END_OF_makelog
+if test 217 -ne `wc -c <makelog`; then
+    echo shar: \"makelog\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f opt.c -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"opt.c\"
+else
+echo shar: Extracting \"opt.c\" \(1651 characters\)
+sed "s/^X//" >opt.c <<'END_OF_opt.c'
+X# include "robots.h"
+X
+X/*
+X * opt.c: do a psuedo ROGUEOPTS sort of thing
+X */
+X
+Xtypedef struct Opt {
+X	char	*name;
+X	int	type;
+X} Opt;
+X
+XOpt	options[] = {
+X# define	OPT_NAME	1
+X	"name",		OPT_NAME,	/* Who am i boss ? */
+X# define	OPT_MOVE_HEAP	2
+X	"moveheaps",	OPT_MOVE_HEAP,	/* can push heaps */
+X# define	OPT_NOMOVE_HEAP	3
+X	"nomoveheaps",	OPT_NOMOVE_HEAP,/* can't push heaps */
+X# define	OPT_SHOW_HSCORE 4
+X	"showhscore",	OPT_SHOW_HSCORE,
+X# define	OPT_NOSHOW_HSCORE 5
+X	"noshowhscore", OPT_NOSHOW_HSCORE,
+X	0,		0
+X};
+X
+X/* get_robot_opts: Personalise robots to the users tastes. Model after
+X * the rogue/urogue type environment stuff. 
+X */
+X
+Xget_robot_opts(str)
+Xchar	*str;
+X{
+X	register char	 *p;
+X	Opt	*op;
+X	int	len, len2;
+X
+X	p = str;
+X	while(*p)
+X	{
+X		while(*p && !isalpha(*p)) p++;  /* skip non-alphas */
+X		str = p;
+X
+X		while(isalpha(*p)) p ++;	/* match longest word */
+X		len = p - str;
+X
+X		for(op = options; op->name; op ++)	/* see if defined */
+X			if( strncmp(str, op->name, len) == 0)
+X				break;
+X		if( op->name == NULL)
+X			continue;
+X		switch(op->type)	/* OK, now do something */
+X		{
+X			case OPT_NAME:
+X				while(*p == '=') p++;	/* skip ='s */
+X				str = p;	/* OK, now look for name */
+X				while(*p && *p != ',') p++;
+X				len2 = (MAXSTR - 1) -
+X					(strlen(my_user_name) + 4);
+X				len = p - str;
+X				len = len < len2 ? len : len2;
+X				(void) sprintf(whoami, "%.*s (%s)", len,
+X					str, my_user_name);
+X				break;
+X			case	OPT_MOVE_HEAP:
+X				moveable_heaps = TRUE;
+X				break;
+X			case	OPT_NOMOVE_HEAP:
+X				moveable_heaps = FALSE;
+X				break;
+X			case	OPT_SHOW_HSCORE:
+X				show_highscore = TRUE;
+X				break;
+X			case	OPT_NOSHOW_HSCORE:
+X				show_highscore = FALSE;
+X				break;
+X		}
+X	}
+X}
+X
+END_OF_opt.c
+if test 1651 -ne `wc -c <opt.c`; then
+    echo shar: \"opt.c\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f robot.c -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"robot.c\"
+else
+echo shar: Extracting \"robot.c\" \(3145 characters\)
+sed "s/^X//" >robot.c <<'END_OF_robot.c'
+X# include "robots.h"
+X
+X/*
+X * robot.c: most of the robot oriented stuff
+X */
+X
+Xstruct robot {
+X	bool	alive;	/* is this suker still kicking */
+X	int	x;
+X	int	y;
+X	int	speed;  /* speed of robot 1 or 2 for now */
+X} rbt_list[MAX_ROBOTS+1];
+X
+Xput_robots()	/* place some robots */
+X{
+X	register struct robot *r, *end;
+X	register int x, y;
+X
+X	robot_value += level*(5 + (max_robots/scrap_heaps));
+X	max_robots += level*3+rnd(level*5);
+X	if(max_robots > MAX_ROBOTS) max_robots = MAX_ROBOTS;
+X	nrobots_alive = max_robots;
+X	scrap_heaps = 0;	/* number of scrap heaps created */
+X	end = &rbt_list[max_robots];
+X	for(r = rbt_list; r < end; r++) {
+X		for(;;) {
+X			x = rndx();
+X			y = rndy();
+X			move(y,x);
+X			if(inch() == ' ') break;
+X		}
+X		r->x = x;
+X		r->y = y;
+X		r->alive = TRUE;
+X		r->speed = 1 +  ( rnd(10) > 6 );
+X		if (r->speed == 2) addch(FROBOT);
+X		else	addch(ROBOT);
+X	}
+X}
+X
+Xrobots(speed)	/* Troops, Troooooops advance! */
+Xint speed;
+X{
+X	register struct robot *r, *end;
+X
+X	end = &rbt_list[max_robots];
+X	for(r = rbt_list; r < end; r++) {
+X		if(r->alive && r->speed >= speed ) {
+X			mvaddch(r->y,r->x,' ');
+X		}
+X	}
+X	for(r = rbt_list; r < end; r++) {
+X		if (r->alive && r->speed >= speed )
+X		{
+X			r->x += sign(my_x-r->x);
+X			r->y += sign(my_y-r->y);
+X			move(r->y,r->x);
+X			switch(inch()) {
+X			case ME:	/* robot eat me */
+X				addch(MUNCH);
+X				dead = TRUE;
+X				break;
+X			case SCRAP:	/* robot walks into scrap heap */
+X				r->alive = FALSE;
+X				if(r->speed == 2)
+X					score += (MULT * robot_value);
+X				else	score += robot_value;
+X				nrobots_alive--;
+X				break;
+X			case FROBOT:
+X			case ROBOT:	/* two robots form scrap heap */
+X				collision(r, end);
+X				r->alive = FALSE;
+X				addch(SCRAP);
+X				if (r->speed == 2)
+X					score += (MULT * robot_value);
+X				else	score += robot_value;
+X				nrobots_alive -= 2;
+X				scrap_heaps++ ;
+X				break;
+X			case MUNCH:
+X				break;
+X			default:
+X				if(r->speed == 2) addch(FROBOT);
+X				else	addch(ROBOT);
+X			}
+X		}
+X	}
+X}
+X
+X/* do two robots collide - if so - which two */
+Xcollision(r, end)
+Xregister struct robot *r, *end;
+X{
+X	register struct robot *find;
+X
+X	for(find = rbt_list; find < end; find++) {
+X		if(find->alive && r != find) {
+X			if(r->x == find->x && r->y == find->y) {
+X				find->alive = FALSE;
+X				if (find->speed == 2)
+X					score += (MULT * robot_value);
+X				else score += robot_value;
+X				return;
+X			} /* end of if */
+X		}
+X	}
+X}
+X
+Xscrewdriver()	/* dismantle those robots ... */
+X{
+X	register int test_x, test_y;
+X	register char *m ;
+X	register struct robot *end,*find;
+X	static char moves[] = "hjklyubn.";
+X
+X	end = &rbt_list[max_robots];
+X
+X	for(m = moves; *m; m++) {	/* let's see if there is a robot */
+X		test_x = my_x+xinc(*m);
+X		test_y = my_y+yinc(*m);
+X		move(test_y,test_x);
+X		switch(inch()) {
+X		case FROBOT:
+X		case ROBOT:	/* OK so there is now let's look for it */
+X			for(find = rbt_list; find < end; find++) {
+X				if(find->alive) {
+X					if(test_x == find->x && test_y  == find->y) {
+X						find->alive = FALSE;
+X						if (find->speed == 2) score += (MULT * robot_value);
+X						else score += robot_value;
+X						} /* end of if */
+X				} /* end of if */
+X			} /* end of for */
+X			addch(' ');
+X			nrobots_alive--;
+X			break;
+X		} /* end of case */
+X	}
+X	free_teleports--;
+X}
+END_OF_robot.c
+if test 3145 -ne `wc -c <robot.c`; then
+    echo shar: \"robot.c\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f robots.6 -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"robots.6\"
+else
+echo shar: Extracting \"robots.6\" \(3170 characters\)
+sed "s/^X//" >robots.6 <<'END_OF_robots.6'
+X.TH ROBOTS 6 "2 November 1984"
+X.SH NAME
+Xrobots \- a game of logic
+X.SH SYNOPSIS
+X.B /usr/games/robots [-s]
+X.SH DESCRIPTION
+X.B Robots
+Xis a display-based game which must be played on a CRT terminal
+Xfrom among those supported by vi(1).
+XThe object of the game is to avoid the robots:
+Xcausing them to collide with each other, creating a
+X.IR scrap\ heap .
+XRobots are also destroyed if they run into a
+X.IR scrap\ heap .
+X.PP
+XYou are represented on the screen by an I.
+XThe robots are represented by `=' and `#' signs.
+XScrap heaps are represented by `@' signs.
+XAfter each move, all robots move one step towards you except for
+Xthe `#' robots which move at twice the speed of normal robots.
+X.PP
+XThe following commands are recognized:
+X.IP h
+XMove left.
+X.IP l
+XMove right.
+X.IP j
+XMove down.
+X.IP k
+XMove up.
+X.IP y
+XMove up and left.
+X.IP u
+XMove up and right.
+X.IP b
+XMove down and left.
+X.IP n
+XMove down and right.
+X.IP .
+X.IP w
+XDo nothing.
+X.IP t
+XTeleport to a safe square if possible (limited in number).
+X.IP r
+XTeleport to a random position.
+X.IP a
+XAntimatter, all robots one square away from you vanish.
+X.IP s
+X.IP W
+XSit and watch.
+X.IP d
+XDisplay dots.
+X.IP m
+XPrint list of `safe' moves.
+X.IP ?
+XSame as above.
+X.IP q
+XQuit game.
+X.IP ^R
+XRedraw the screen.
+X.IP ^Z
+XSuspend the game, on systems which support it.
+X.IP ^W
+XSit and watch while safe to do so.
+X.PP
+XA command may be preceeded by a count where relevant.
+X.I Shift\-direction
+Xmoves as far as possible in that direction.
+X.I Control\-direction
+Xmoves until adjacent to something.
+X.PP
+XA record is kept of the personal best scores of each player:
+Xone for the current week and one for all time.
+XScores are printed out at the end of the game.
+XThe scores can be printed out with the '\-s' parameter.
+X.SH CONFIGURATION
+XIf you have in your environment the variable
+X.I ROBOTOPTS
+Xthen this is examined for a comma separated list of options to be set.
+XBinary options can be preceeded with `no' to reverse the meaning.
+XValid options are
+X.IP name=string
+XSet your name to the given string, this is recorded in the high
+Xscore table. Your name appears as `string (username)'.
+X.IP moveheaps
+XMake the scrap heaps movable. If heaps are movable, then
+Xa scrap heap can be pushed in any direction provided there is nothing
+Xbehind the heap. This may or may not be the default.
+X.IP showhscores
+XThis option shows the highscore table after every game. The
+Xnegated version will only print out the highscore only if you appear
+Xon it.
+X.SH NOTE
+XThe first time the `t' command is used on a new level
+Xyou are guaranteed not to land next to a robot, a count of
+Xthese `safe' teleports is maintained in the bottom left hand corner.
+X`Antimatters' use up a `safe' teleport.
+X.br
+XAn asterisk in the first set of scores indicates an out-of-date entry.
+X.br
+XThe value of each robot in the next round is inversely
+Xproportional to the
+Xnumber of scrap heaps created in the previous round.
+XDouble speed robots count 1.5 times the value of normal robots.
+X.SH FILES
+X.nf
+X/usr/games/lib/robots_tmp	this week's best scores
+X/usr/games/lib/robots_hof	all time best scores
+X.fi
+X.SH AUTHOR
+XAllan Black, Strathclyde University, Glasgow.
+X.br
+XEnhancements by Graeme Lunt & Julian Onions, Nottingham University.
+END_OF_robots.6
+if test 3170 -ne `wc -c <robots.6`; then
+    echo shar: \"robots.6\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f robots.h -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"robots.h\"
+else
+echo shar: Extracting \"robots.h\" \(2357 characters\)
+sed "s/^X//" >robots.h <<'END_OF_robots.h'
+X/*
+X * robots.h: include file for the robots game
+X */
+X
+X# include <curses.h>
+X# include <signal.h>
+X# include <pwd.h>
+X# include <ctype.h>
+X# include <sys/types.h>
+X# include <errno.h>
+X# ifdef	BSD42
+X# include <sys/file.h>
+X# endif BSD42
+X
+X# define MIN_ROBOTS	10	/* no. of robots you start with */
+X# define MAX_ROBOTS	500	/* maximum robots on a screen	*/
+X# define MIN_VALUE	10	/* what each robot is worth to begin */
+X# define MAX_FREE	3	/* max free teleports per level	*/
+X# define FASTEST	2	/* the fastest robot (dont fiddle) */
+X
+X# define VERT	'|'		/* vertical wall	*/
+X# define HORIZ	'-'		/* horizontal wall	*/
+X# define ROBOT	'='		/* normal robot		*/
+X# define FROBOT '#'		/* fast robot		*/
+X# define SCRAP  '@'
+X# define ME	'I'
+X# define MUNCH	'*'
+X# define DOT	'.'
+X
+X# define LEVEL		(level+1)
+X
+X# define MSGPOS		35	/* where messages appear on bottom line */
+X# define RVPOS		47
+X
+X/* These you may want to fiddle with. Position of the two high score files */
+X# define HOF_FILE	"/usr/sheriff/jpo/games/lib/robots_hof"
+X# define TMP_FILE	"/usr/sheriff/jpo/games/lib/robots_tmp"
+X
+X# define NUMSCORES	20		/* number of people to record */
+X# define NUMNAME	"Twenty"	/* above spelt out */
+X
+X# define TEMP_DAYS	7		/* how long temp scores last */
+X# define TEMP_NAME	"Week"
+X
+X# define ROBOTOPTS	"ROBOTOPTS"	/* environment tailoring */
+X
+X# define MAXSTR		100
+X
+X# define MULT		1.5		/* multiplier for fast robots */
+X
+X/* if ALLSCORES Undefined - record top n players */
+X# define ALLSCORES			/* record top n scores */
+X
+X# define SECSPERDAY	86400
+X
+X# define ctrl(x)	((x)&037)
+X# define BEL	ctrl('G')
+X
+X# define	abs(X)  ((X) < 0 ? -(X) : (X))
+X# define	sign(X) ((X) < 0 ? -1 : (X) > 0)
+X
+Xextern	char	whoami[];
+Xextern	char	my_user_name[];
+Xextern	char	cmd_ch;
+X
+Xextern	bool	moveable_heaps;
+Xextern	bool	show_highscore;
+Xextern	bool	last_stand;
+Xextern	bool	bad_move;
+Xextern	bool	running;
+Xextern	bool	waiting;
+Xextern	bool	first_move;
+Xextern	bool	adjacent;
+Xextern	bool	dead;
+X
+Xextern	int	my_x, my_y;
+Xextern	int	new_x, new_y;
+Xextern	int	count;
+Xextern	int	free_teleports;
+Xextern	int 	dots;
+Xextern	int	robot_value;
+Xextern	int	level;
+Xextern	int	max_robots;
+Xextern	int	scrap_heaps;
+Xextern	int	nrobots_alive;
+Xextern	int	free_per_level;
+Xextern	int	old_free;
+X
+Xextern	long	score;
+Xextern	long	lseek();
+X
+Xextern	char	*strcpy ();
+Xextern	char	*strncpy ();
+Xextern	char	*malloc ();
+Xextern	char	*gets ();
+Xextern	char	*sprintf ();
+END_OF_robots.h
+if test 2357 -ne `wc -c <robots.h`; then
+    echo shar: \"robots.h\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f score.c -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"score.c\"
+else
+echo shar: Extracting \"score.c\" \(4532 characters\)
+sed "s/^X//" >score.c <<'END_OF_score.c'
+X# include "robots.h"
+X
+X/*
+X * score.c: All the scoring code is in here.
+X */
+X
+Xstruct scorefile {
+X	int	s_uid;
+X	long	s_score;
+X	char	s_name[MAXSTR];
+X	bool	s_eaten;
+X	int	s_level;
+X	int	s_days;
+X};
+X
+X# define FILE_SIZE	(NUMSCORES*sizeof(struct scorefile))
+X
+Xscoring(eaten)
+X	bool eaten;
+X{
+X	static char buf[MAXSTR];
+X
+X	(void) sprintf(buf,"for this %s",TEMP_NAME);
+X	if( record_score(eaten,TMP_FILE,TEMP_DAYS,buf) || show_highscore) {
+X		printf("[Press return to continue]");
+X		fflush(stdout);
+X		gets(buf);
+X	}
+X	record_score(eaten,HOF_FILE,0,"of All Time");
+X}
+X
+X# define	sigbit(x)	(1 << ((x) - 1))
+X
+Xrecord_score(eaten,fname,max_days,type_str)
+X	bool eaten;
+X	char *fname;
+X	int max_days;
+X	char *type_str;
+X{
+X	int value;
+X	int fd;
+X	int omask;
+X
+X	/* block signals while recording the score 
+X	 * hope this routine doesn't get stuck! 
+X	 */
+X# ifndef BSD42
+X	int	(*oint)(), (*oterm)(), (*ohup)();
+X
+X	oint = signal(SIGINT, SIG_IGN);
+X	oterm = signal(SIGTERM, SIG_IGN);
+X	ohup = signal(SIGHUP, SIG_IGN);
+X# else
+X	omask = sigblock( sigbit(SIGINT) | sigbit(SIGTERM) | sigbit(SIGHUP) 
+X			| sigbit(SIGTSTP));
+X# endif
+X	
+X	if((fd = lk_open(fname,2)) < 0) {
+X		perror(fname);
+X	} else {
+X		value = do_score(eaten,fd,max_days,type_str);
+X		lk_close(fd, fname);
+X	}
+X# ifdef BSD42
+X	(void) sigsetmask(omask);
+X# else
+X	(void) signal(SIGINT, oint);
+X	(void) signal(SIGTERM, oterm);
+X	(void) signal(SIGHUP, ohup);
+X# endif
+X	return value;
+X}
+X
+Xdo_score(eaten,fd,max_days,type_str)
+X	bool eaten;
+X	int fd, max_days;
+X	char *type_str;
+X{
+X	register struct scorefile *position;
+X	register int x;
+X	register struct scorefile *remove, *sfile, *eof;
+X	struct scorefile *oldest, *this;
+X	int uid, this_day, limit;
+X
+X	this_day = max_days ? time((time_t *)0)/SECSPERDAY : 0;
+X	limit = this_day-max_days;
+X	sfile = (struct scorefile *)(malloc(FILE_SIZE));
+X	if( sfile == NULL)
+X	{
+X		fprintf( stderr, "Out of memmory so no scoring");
+X		return FALSE;
+X	}
+X	eof = &sfile[NUMSCORES];
+X	this = 0;
+X	for(position = sfile; position < eof; position++) {
+X		position->s_score = 0;
+X		position->s_days = 0;
+X	}
+X	read(fd, (char *)sfile,FILE_SIZE);
+X	remove = 0;
+X	if(score > 0) {
+X		uid = getuid();
+X		oldest = 0;
+X		x = limit;
+X		for(position = eof-1; position >= sfile; position--) {
+X			if(position->s_days < x) {
+X				x = position->s_days;
+X				oldest = position;
+X			}
+X		}
+X		position = 0;
+X		for(remove = sfile; remove < eof; remove++) {
+X			if(position == 0 && score > remove->s_score) position = remove;
+X# ifndef ALLSCORES
+X			if(remove->s_uid == uid) break;
+X# endif ALLSCORES
+X		}
+X		if(remove < eof) {
+X			if(position == 0 && remove->s_days < limit) position = remove;
+X		} else if(oldest) {
+X			remove = oldest;
+X			if(position == 0) {
+X				position = eof-1;
+X			} else if(remove < position) {
+X				position--;
+X			}
+X		} else if(position) {
+X			remove = eof-1;
+X		}
+X		if(position) {
+X			if(remove < position) {
+X				while(remove < position) {
+X					*remove = *(remove+1);
+X					remove++;
+X				}
+X			} else {
+X				while(remove > position) {
+X					*remove = *(remove-1);
+X					remove--;
+X				}
+X			}
+X			position->s_score = score;
+X			(void) strncpy(position->s_name,whoami,MAXSTR);
+X			position->s_eaten = eaten;
+X			position->s_level = LEVEL;
+X			position->s_uid = uid;
+X			position->s_days = this_day;
+X			this = position;
+X
+X			if(lseek(fd,0L,0) == -1L ||
+X				write(fd,(char *)sfile,FILE_SIZE) != FILE_SIZE)
+X				perror("scorefile");
+X			close(fd);
+X		}
+X	}
+X	if( show_highscore || this )
+X	{
+X		printf(
+X# ifdef ALLSCORES
+X			"\nTop %s Scores %s:\n",
+X# else ALLSCORES
+X			"\nTop %s Robotists %s:\n",
+X# endif ALLSCORES
+X			NUMNAME,
+X			type_str
+X		);
+X		printf("Rank   Score	Name\n");
+X		for(position = sfile; position < eof; position++) {
+X			if(position->s_score == 0) break;
+X			if(position == this)
+X				putchar('>');
+X			else  putchar(' ');
+X			printf(
+X				"%c%2d %9ld   %s: %s on level %d.",
+X				position->s_days < limit ? '*' : ' ',
+X				position-sfile+1,
+X				position->s_score,
+X				position->s_name,
+X				position->s_eaten ? "eaten" : "chickened out",
+X				position->s_level
+X			);
+X			if(position == this)
+X				putchar('<');
+X			putchar('\n');
+X		}
+X	}
+X	return (this != 0);
+X}
+X
+Xscorer()
+X{
+X	static char tels[6];
+X	if(free_teleports != old_free) {
+X		if(free_teleports > free_per_level) {
+X			(void) sprintf(tels,"%d+%d",
+X				       free_per_level,
+X				       free_teleports-free_per_level);
+X		} else {
+X			(void) sprintf(tels,"%d",free_teleports);
+X		}
+X		old_free = free_teleports;
+X	}
+X	move(LINES-1,0);
+X	clrtoeol();
+X	printw("<%s> level: %d    score: %ld",tels,LEVEL,score);
+X        mvprintw(LINES-1,RVPOS,"heaps:%3d robots:%3d value: %d",
+X					scrap_heaps,nrobots_alive,robot_value);
+X	clrtoeol();
+X}
+X
+END_OF_score.c
+if test 4532 -ne `wc -c <score.c`; then
+    echo shar: \"score.c\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f user.c -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"user.c\"
+else
+echo shar: Extracting \"user.c\" \(3604 characters\)
+sed "s/^X//" >user.c <<'END_OF_user.c'
+X# include "robots.h"
+X
+X/*
+X * user.c: user oriented things
+X */
+X
+Xcommand()	/* whats the user trying to tell us */
+X{
+Xretry:
+X	move(my_y,my_x);
+X	refresh();
+X	if(last_stand) return;
+X	bad_move = FALSE;
+X	if(!running) {
+X		cmd_ch = read_com();
+X		switch(cmd_ch) {
+X		case ctrl('W'):
+X			waiting = TRUE;
+X		case ctrl('H'):
+X		case ctrl('J'):
+X		case ctrl('K'):
+X		case ctrl('L'):
+X		case ctrl('Y'):
+X		case ctrl('U'):
+X		case ctrl('B'):
+X		case ctrl('N'):
+X			cmd_ch |= 0100;
+X			adjacent = TRUE;
+X		case 'H':
+X		case 'J':
+X		case 'K':
+X		case 'L':
+X		case 'Y':
+X		case 'U':
+X		case 'B':
+X		case 'N':
+X			cmd_ch |= 040;
+X			running = TRUE;
+X			first_move = TRUE;
+X		case 't':
+X		case 'T':
+X		case 's':
+X		case 'S':
+X		case 'W':
+X		case 'm':
+X		case 'M':
+X		case '?':
+X		case 'd':
+X		case 'D':
+X		case ctrl('R'):
+X			count = 0;
+X		}
+X	}
+X	switch(cmd_ch) {
+X	case '.':
+X	case 'h':
+X	case 'j':
+X	case 'k':
+X	case 'l':
+X	case 'y':
+X	case 'u':
+X	case 'b':
+X	case 'n':
+X	case 'w':
+X		do_move(cmd_ch);
+X		break;
+X	case 't':
+X	case 'r':
+X	case 'T':
+X	case 'R':
+X	teleport:
+X		new_x = rndx();
+X		new_y = rndy();
+X		move(new_y,new_x);
+X		switch(inch()) {
+X		case FROBOT:
+X		case ROBOT:
+X		case SCRAP:
+X		case ME:
+X			goto teleport;
+X		}
+X		if( (free_teleports > 0)
+X		   && ((cmd_ch == 't')||(cmd_ch =='T')) ) {
+X			if( !isgood(new_y, new_x))
+X				goto teleport;
+X			free_teleports--;
+X		}
+X		break;
+X	case 's':
+X	case 'S':
+X	case 'W':
+X		last_stand = TRUE;
+X		leaveok(stdscr,TRUE);
+X		return;
+X	case 'm':
+X	case 'M':
+X	case '?':
+X		good_moves();
+X		goto retry;
+X	case 'd':
+X	case 'D':
+X		if(dots < 2) {
+X			dots++;
+X			put_dots();
+X		} else {
+X			erase_dots();
+X			dots = 0;
+X		}
+X		goto retry;
+X	case 'q':
+X	case 'Q':
+X		quit(FALSE);
+X	case 'a':
+X	case 'A':	/* Antimatter - sonic screwdriver */
+X		if (free_teleports) { new_x = my_x;
+X				  new_y = my_y;
+X				  screwdriver();
+X				}
+X		else goto retry;
+X		break;
+X	case ctrl('R'):
+X		clearok(curscr,TRUE);
+X		wrefresh(curscr);
+X		goto retry;
+X	default:
+X		bad_move = TRUE;
+X	}
+X	if(bad_move) {
+X		if(running) {
+X			if(first_move) putchar(BEL);
+X			running = FALSE;
+X			adjacent = FALSE;
+X			waiting = FALSE;
+X			first_move = FALSE;
+X		} else {
+X			putchar(BEL);
+X		}
+X		refresh();
+X		count = 0;
+X		goto retry;
+X	}
+X	first_move = FALSE;
+X	if(dots) erase_dots();
+X	mvaddch(my_y,my_x,' ');
+X	my_x = new_x;
+X	my_y = new_y;
+X	move(my_y,my_x);
+X	if(inch() == ROBOT) munch();
+X	if(inch() == FROBOT) munch();
+X	if(dots) put_dots();
+X	mvaddch(my_y,my_x,ME);
+X	refresh();
+X}
+X
+Xread_com()
+X{
+X	static int     com;
+X
+X	if(count == 0) {
+X		if(isdigit(com = readchar())) {
+X			count = com-'0';
+X			while(isdigit(com = readchar()))
+X				count = count*10+com-'0';
+X		}
+X	}
+X	if(count > 0) count--;
+X	return(com);
+X}
+X
+Xdo_move(dir)	/* implement the users move */
+X	char dir;
+X{
+X	register int x, y;
+X	new_x = my_x+xinc(dir);
+X	new_y = my_y+yinc(dir);
+X	if(adjacent && !first_move) {
+X		for(x = -2; x <= 2; x++) {
+X			for(y = -2; y <= 2; y++) {
+X				move(new_y+y ,new_x+x);
+X				switch(inch()) {
+X				case SCRAP:
+X					if( waiting )
+X						break;
+X				case ROBOT:
+X					if(abs(x) < 2 && abs(y) < 2) {
+X						bad_move = TRUE;
+X						return;
+X					}
+X					else break;
+X				case FROBOT:
+X					if (waiting &&
+X						blocked(new_y, new_x, y, x) )
+X						break;
+X					bad_move = TRUE;
+X					return;
+X				}
+X			}
+X		}
+X	}
+X	move(new_y,new_x);
+X	switch(inch()) {
+X	case SCRAP:
+X		if(moveable_heaps && move_heap(dir))
+X			break;
+X	case VERT:
+X	case HORIZ:
+X		bad_move = TRUE;
+X		return;
+X	}
+X}
+X
+Xmove_heap(dir)	/* push a scrap heap */
+Xchar	dir;
+X{
+X	register int	x, y;
+X
+X	x = new_x + xinc(dir);
+X	y = new_y + yinc(dir);
+X	move(y, x);
+X	switch(inch()) {
+X		case VERT:
+X		case HORIZ:
+X		case SCRAP:
+X		case ROBOT:
+X		case FROBOT:
+X			return FALSE;
+X	}
+X	addch(SCRAP);
+X	mvaddch(new_y,new_x,' ');
+X	return TRUE;
+X}
+END_OF_user.c
+if test 3604 -ne `wc -c <user.c`; then
+    echo shar: \"user.c\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+echo shar: End of shell archive.
+exit 0

@@ -1,0 +1,113 @@
+.TH ROBOTS 6 "2 November 1984"
+.SH NAME
+robots \- a game of logic
+.SH SYNOPSIS
+.B /usr/games/robots [-s]
+.SH DESCRIPTION
+.B Robots
+is a display-based game which must be played on a CRT terminal
+from among those supported by vi(1).
+The object of the game is to avoid the robots:
+causing them to collide with each other, creating a
+.IR scrap\ heap .
+Robots are also destroyed if they run into a
+.IR scrap\ heap .
+.PP
+You are represented on the screen by an I.
+The robots are represented by `=' and `#' signs.
+Scrap heaps are represented by `@' signs.
+After each move, all robots move one step towards you except for
+the `#' robots which move at twice the speed of normal robots.
+.PP
+The following commands are recognized:
+.IP h
+Move left.
+.IP l
+Move right.
+.IP j
+Move down.
+.IP k
+Move up.
+.IP y
+Move up and left.
+.IP u
+Move up and right.
+.IP b
+Move down and left.
+.IP n
+Move down and right.
+.IP .
+.IP w
+Do nothing.
+.IP t
+Teleport to a safe square if possible (limited in number).
+.IP r
+Teleport to a random position.
+.IP a
+Antimatter, all robots one square away from you vanish.
+.IP s
+.IP W
+Sit and watch.
+.IP d
+Display dots.
+.IP m
+Print list of `safe' moves.
+.IP ?
+Same as above.
+.IP q
+Quit game.
+.IP ^R
+Redraw the screen.
+.IP ^Z
+Suspend the game, on systems which support it.
+.IP ^W
+Sit and watch while safe to do so.
+.PP
+A command may be preceeded by a count where relevant.
+.I Shift\-direction
+moves as far as possible in that direction.
+.I Control\-direction
+moves until adjacent to something.
+.PP
+A record is kept of the personal best scores of each player:
+one for the current week and one for all time.
+Scores are printed out at the end of the game.
+The scores can be printed out with the '\-s' parameter.
+.SH CONFIGURATION
+If you have in your environment the variable
+.I ROBOTOPTS
+then this is examined for a comma separated list of options to be set.
+Binary options can be preceeded with `no' to reverse the meaning.
+Valid options are
+.IP name=string
+Set your name to the given string, this is recorded in the high
+score table. Your name appears as `string (username)'.
+.IP moveheaps
+Make the scrap heaps movable. If heaps are movable, then
+a scrap heap can be pushed in any direction provided there is nothing
+behind the heap. This may or may not be the default.
+.IP showhscores
+This option shows the highscore table after every game. The
+negated version will only print out the highscore only if you appear
+on it.
+.SH NOTE
+The first time the `t' command is used on a new level
+you are guaranteed not to land next to a robot, a count of
+these `safe' teleports is maintained in the bottom left hand corner.
+`Antimatters' use up a `safe' teleport.
+.br
+An asterisk in the first set of scores indicates an out-of-date entry.
+.br
+The value of each robot in the next round is inversely
+proportional to the
+number of scrap heaps created in the previous round.
+Double speed robots count 1.5 times the value of normal robots.
+.SH FILES
+.nf
+/usr/games/lib/robots_tmp	this week's best scores
+/usr/games/lib/robots_hof	all time best scores
+.fi
+.SH AUTHOR
+Allan Black, Strathclyde University, Glasgow.
+.br
+Enhancements by Graeme Lunt & Julian Onions, Nottingham University.

@@ -1,0 +1,38 @@
+Robots - version 2
+
+This version has several features over the original version but is
+still very much in the same spirit. Amongst the new features are
+
+- Fast robots, these are robots that move at twice the speed of
+	normal robots.
+- Option settings in the style of rogue.
+- movable scrap heaps.
+- random & safe teleports with the ability to choose.
+- antimatter
+
+To build.
+It should build on most sane systems,
+You may want to play with some of the variables in Makefile, there
+are a couple of version specific things to look for.
+If you are on a BSD4.2 or better system add -DBSD42 to the CFLAGS
+in the Makefile.
+System 5 may need to remove -ltermcap from the LIBS line in Makefile.
+Also if BSD42 is not defined, the score directory needs to be
+writable to lock the files.
+You may want to play with the location of the high score files which
+are #defined near the begining of robots.h.
+
+Type make, make install, and enjoy.
+
+Bugs, comments, flames, offers of cash, aston martins to those below
+	Julian Onions <jpo@cs.nott.ac.uk>
+	Graeme Lunt <gal@cs.nott.ac.uk>
+	Allan Black <allan@cs.strath.ac.uk>
+
+Stop Press:
+	Also available from jpo@cs.nott.ac.uk, a version of robomatic
+	which does a reasonable job of playing the game of robots.
+	Current high scores are -
+
+   1 482538104   Graeme (gal): eaten on level 85.
+   6   8476863   Robomatic II (jpo): eaten on level 23.

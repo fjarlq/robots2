@@ -1,0 +1,7 @@
+cc -DBSD42  -c good.c
+cc -DBSD42  -c main.c
+cc -DBSD42  -c opt.c
+cc -DBSD42  -c robot.c
+cc -DBSD42  -c score.c
+cc -DBSD42  -c user.c
+cc -DBSD42  -o robots good.o main.o opt.o robot.o score.o user.o -lcurses -ltermcap
