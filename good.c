@@ -6,7 +6,7 @@
  * and moveable heaps and its now an AI expert system in its own right!
  */
 
-good_moves ()
+void good_moves(void)
 {
 	register int test_x, test_y;
 	register char *m, *a;
@@ -79,8 +79,7 @@ good_moves ()
 	mvprintw(LINES-1,MSGPOS,"%-*.*s",RVPOS-MSGPOS,RVPOS-MSGPOS,a);
 }
 
-isgood(ty,tx)
-register int tx, ty;
+int isgood(int ty, int tx)
 {
 	register int x, y;
 
@@ -111,8 +110,8 @@ register int tx, ty;
 	return TRUE;
 }
 
-scan(y, x, yi, xi) /* scan along this line looking for collision conditions */
-int x, y, xi, yi;
+/* scan along this line looking for collision conditions */
+int scan(int y, int x, int yi, int xi)
 {
 	int rcount = 0;
 	register int ctr;
@@ -131,8 +130,7 @@ int x, y, xi, yi;
 	return rcount == 4;
 }
 
-blocked(my, mx, y, x)
-register int	my, mx, y, x;
+int blocked(int my, int mx, int y, int x)
 {
 	if ( x < 0 ) x++;
 	if ( y < 0 ) y++;

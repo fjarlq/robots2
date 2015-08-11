@@ -4,7 +4,7 @@
  * user.c: user oriented things
  */
 
-command()	/* whats the user trying to tell us */
+void command(void)	/* whats the user trying to tell us */
 {
 retry:
 	move(my_y,my_x);
@@ -152,7 +152,7 @@ retry:
 	refresh();
 }
 
-read_com()
+int read_com(void)
 {
 	static int     com;
 
@@ -167,8 +167,7 @@ read_com()
 	return(com);
 }
 
-do_move(dir)	/* implement the users move */
-	char dir;
+void do_move(char dir)	/* implement the users move */
 {
 	register int x, y;
 	new_x = my_x+xinc(dir);
@@ -209,8 +208,7 @@ do_move(dir)	/* implement the users move */
 	}
 }
 
-move_heap(dir)	/* push a scrap heap */
-char	dir;
+int move_heap(char dir)	/* push a scrap heap */
 {
 	register int	x, y;
 

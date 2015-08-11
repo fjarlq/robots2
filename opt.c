@@ -11,24 +11,23 @@ typedef struct Opt {
 
 Opt	options[] = {
 # define	OPT_NAME	1
-	"name",		OPT_NAME,	/* Who am i boss ? */
+	{ "name",		OPT_NAME, },	/* Who am i boss ? */
 # define	OPT_MOVE_HEAP	2
-	"moveheaps",	OPT_MOVE_HEAP,	/* can push heaps */
+	{ "moveheaps",	OPT_MOVE_HEAP, },	/* can push heaps */
 # define	OPT_NOMOVE_HEAP	3
-	"nomoveheaps",	OPT_NOMOVE_HEAP,/* can't push heaps */
+	{ "nomoveheaps",	OPT_NOMOVE_HEAP, },/* can't push heaps */
 # define	OPT_SHOW_HSCORE 4
-	"showhscore",	OPT_SHOW_HSCORE,
+	{ "showhscore",	OPT_SHOW_HSCORE, },
 # define	OPT_NOSHOW_HSCORE 5
-	"noshowhscore", OPT_NOSHOW_HSCORE,
-	0,		0
+	{ "noshowhscore", OPT_NOSHOW_HSCORE, },
+	{ 0,		0 },
 };
 
 /* get_robot_opts: Personalise robots to the users tastes. Model after
  * the rogue/urogue type environment stuff. 
  */
 
-get_robot_opts(str)
-char	*str;
+void get_robot_opts(char *str)
 {
 	register char	 *p;
 	Opt	*op;

@@ -13,6 +13,8 @@
  * Provided free as long as you don't make money from it!
  */
 
+# include <stdarg.h>
+# include <termios.h>
 # include "robots.h"
 
 char	whoami[MAXSTR];
@@ -41,25 +43,21 @@ int	scrap_heaps = 1;  /* to allow for first level */
 long	score = 0;
 long	seed;
 
-# ifdef TIOCSLTC
-struct ltchars	ltc;
-char	dsusp;
-# endif TIOCSLTC
 
-int	interrupt();
+void	interrupt(int signum);
 
 # define	TERM_UNINIT	00
 # define	TERM_CURSES	01
-# define	TERM_LTC	02
+#ifdef VDSUSP
+# define	TERM_DSUSP	02
+void nodsusp(void);
+static struct termios origtty;
+#endif
 
 int	term_state = TERM_UNINIT;	/* cuts out some race conditions */
-char	*getenv();
-struct	passwd	*getpwuid();
 char	_obuf[BUFSIZ];
 
-main(argc,argv)
-	int argc;
-	char *argv[];
+int main(int argc, char *argv[])
 {
 	register struct passwd *pass;
 	register char *x;
@@ -88,20 +86,16 @@ main(argc,argv)
 	seed = time((time_t *)0)+getuid();
 	(void) signal(SIGQUIT,interrupt);
 	(void) signal(SIGINT,interrupt);
-	if( initscr() == ERR) {
+	if( initscr() == NULL) {
 		fprintf(stderr, "Curses won't initialise - seek a guru\n");
 		quit(FALSE);
 	}
 	term_state |= TERM_CURSES;
 	crmode();
 	noecho();
-# ifdef TIOCSLTC
-	(void) ioctl(1,TIOCGLTC,&ltc);
-	dsusp = ltc.t_dsuspc;
-	ltc.t_dsuspc = ltc.t_suspc;
-	(void) ioctl(1,TIOCSLTC,&ltc);
-	term_state |= TERM_LTC;
-# endif TIOCSLTC
+#ifdef VDSUSP
+	nodsusp();
+#endif
 	for(;;) {
 		count = 0;
 		running = FALSE;
@@ -140,7 +134,7 @@ main(argc,argv)
 	}
 }
 
-draw_screen()
+void draw_screen(void)
 {
 	register int x, y;
 	clear();
@@ -154,7 +148,7 @@ draw_screen()
 	}
 }
 
-readchar()
+char readchar(void)
 {
 	static char buf[1];
 	extern int errno;
@@ -165,7 +159,7 @@ readchar()
 	return(buf[0]);
 }
 
-put_dots()
+void put_dots(void)
 {
 	register int x, y;
 	for(x = my_x-dots; x <= my_x+dots; x++) {
@@ -176,7 +170,7 @@ put_dots()
 	}
 }
 
-erase_dots()
+void erase_dots(void)
 {
 	register int x, y;
 	for(x = my_x-dots; x <= my_x+dots; x++) {
@@ -187,8 +181,7 @@ erase_dots()
 	}
 }
 
-xinc(dir)
-	char dir;
+int xinc(char dir)
 {
 	switch(dir) {
 	case 'h':
@@ -206,8 +199,7 @@ xinc(dir)
 	}
 }
 
-yinc(dir)
-	char dir;
+int yinc(char dir)
 {
 	switch(dir) {
 	case 'k':
@@ -225,7 +217,7 @@ yinc(dir)
 	}
 }
 
-munch()
+void munch(void)
 {
 	scorer();
 	msg("MUNCH! You're robot food");
@@ -237,9 +229,14 @@ munch()
 	quit(TRUE);
 }
 
-quit(eaten)
-	bool eaten;
+void quit(bool eaten)
 {
+# ifdef VDSUSP
+	if( term_state & TERM_DSUSP ) {
+		tcsetattr(0, TCSANOW, &origtty);
+		term_state &= ~ TERM_DSUSP;
+	}
+# endif
 	if( term_state & TERM_CURSES ) {
 		move(LINES-1,0);
 		refresh();
@@ -247,50 +244,43 @@ quit(eaten)
 		term_state &= ~ TERM_CURSES;
 	}
 	putchar('\n');
-# ifdef TIOCSLTC
-	if( term_state & TERM_LTC ) {
-		ltc.t_dsuspc = dsusp;
-		(void) ioctl(1,TIOCSLTC,&ltc);
-		term_state &= ~ TERM_LTC;
-	}
-# endif TIOCSLTC
 	(void) signal(SIGINT, SIG_DFL);
 	scoring(eaten);
 	exit(0);
 }
 
-rndx()
+int rndx(void)
 {
 	return(rnd(COLS-2)+1);
 }
 
-rndy()
+int rndy(void)
 {
 	return(rnd(LINES-3)+1);
 }
 
-rnd(mod)
-	int mod;
+int rnd(int mod)
 {
 	if(mod <= 0) return(0);
 	return((((seed = seed*11109L+13849L) >> 16) & 0xffffL) % mod);
 }
 
-/* VARARGS 1 */
-msg(message,a1, a2, a3, a4, a5, a6, a7)
-	char *message;
-	unsigned int a1, a2, a3, a4, a5, a6, a7;
+void msg(char *message, ...)
 {
 	static char msgbuf[1000];
+	va_list args;
 
-	(void) sprintf(msgbuf, message, a1, a2, a3, a4, a5, a6, a7);
+	va_start(args, message);
+	vsprintf(msgbuf, message, args);
+	va_end(args);
 	mvaddstr(LINES-1,MSGPOS,msgbuf);
 	clrtoeol();
 	refresh();
 }
 
-interrupt()
+void interrupt(int signum)
 {
+	(void)signum;
 	quit(FALSE);
 }
 
@@ -299,9 +289,8 @@ interrupt()
  */
 
 # ifdef BSD42
-lk_open(file, mode)	/* lock a file using the flock sys call */
-char	*file;
-int	mode;
+/* lock a file using the flock sys call */
+int lk_open(char *file, int mode)
 {
 	int	fd;
 
@@ -315,23 +304,19 @@ int	mode;
 	return fd;
 }
 
-lk_close( fd, file)
-int	fd;
-char	*file;
+int lk_close(int fd, char *file)
 {
-# ifdef lint
-	file = file;	/* now will you shut up lint???? */
-# endif
+	(void)file;	/* now will you shut up lint???? */
 	return close(fd);
 }
 # else
 
 # define	LOCKTIME	(60)	/* 1 minute */
+# include <fcntl.h>
 # include	<sys/stat.h>
 
-lk_open(file, mode)	/* lock a file by crude means */
-char	*file;
-int	mode;
+/* lock a file by crude means */
+int lk_open(char *file, int mode)
 {
 	char	tfile[128], lfile[128];
 	struct	stat stbuf;
@@ -361,9 +346,7 @@ int	mode;
 	return fd;
 }
 
-lk_close(fd, fname)
-int	fd;
-char	*fname;
+int lk_close(int fd, char *fname)
 {
 	char	lfile[128];
 
@@ -374,3 +357,22 @@ char	*fname;
 }
 # endif
 
+#ifdef VDSUSP
+void nodsusp(void)
+{
+	struct termios tty;
+	if (tcgetattr(0, &origtty) == -1) {
+		perror("tcgetattr");
+		quit(FALSE);
+		return;
+	}
+	tty = origtty;
+	tty.c_cc[VDSUSP] = _POSIX_VDISABLE;
+	if (tcsetattr(0, TCSANOW, &tty) == -1) {
+		perror("tcsetattr");
+		quit(FALSE);
+		return;
+	}
+	term_state |= TERM_DSUSP;
+}
+#endif

@@ -15,8 +15,7 @@ struct scorefile {
 
 # define FILE_SIZE	(NUMSCORES*sizeof(struct scorefile))
 
-scoring(eaten)
-	bool eaten;
+void scoring(bool eaten)
 {
 	static char buf[MAXSTR];
 
@@ -24,63 +23,48 @@ scoring(eaten)
 	if( record_score(eaten,TMP_FILE,TEMP_DAYS,buf) || show_highscore) {
 		printf("[Press return to continue]");
 		fflush(stdout);
-		gets(buf);
+		getchar();
 	}
 	record_score(eaten,HOF_FILE,0,"of All Time");
 }
 
-# define	sigbit(x)	(1 << ((x) - 1))
-
-record_score(eaten,fname,max_days,type_str)
-	bool eaten;
-	char *fname;
-	int max_days;
-	char *type_str;
+int record_score(bool eaten, char *fname, int max_days, char *type_str)
 {
 	int value;
 	int fd;
-	int omask;
 
 	/* block signals while recording the score 
 	 * hope this routine doesn't get stuck! 
 	 */
-# ifndef BSD42
-	int	(*oint)(), (*oterm)(), (*ohup)();
+	sig_t	oint, oterm, ohup, otstp;
 
 	oint = signal(SIGINT, SIG_IGN);
 	oterm = signal(SIGTERM, SIG_IGN);
 	ohup = signal(SIGHUP, SIG_IGN);
-# else
-	omask = sigblock( sigbit(SIGINT) | sigbit(SIGTERM) | sigbit(SIGHUP) 
-			| sigbit(SIGTSTP));
-# endif
+	otstp = signal(SIGTSTP, SIG_IGN);
 	
 	if((fd = lk_open(fname,2)) < 0) {
 		perror(fname);
+		value = FALSE;
 	} else {
 		value = do_score(eaten,fd,max_days,type_str);
 		lk_close(fd, fname);
 	}
-# ifdef BSD42
-	(void) sigsetmask(omask);
-# else
 	(void) signal(SIGINT, oint);
 	(void) signal(SIGTERM, oterm);
 	(void) signal(SIGHUP, ohup);
-# endif
+	(void) signal(SIGTSTP, otstp);
 	return value;
 }
 
-do_score(eaten,fd,max_days,type_str)
-	bool eaten;
-	int fd, max_days;
-	char *type_str;
+int do_score(bool eaten, int fd, int max_days, char *type_str)
 {
 	register struct scorefile *position;
 	register int x;
 	register struct scorefile *remove, *sfile, *eof;
 	struct scorefile *oldest, *this;
 	int uid, this_day, limit;
+	ssize_t nread;
 
 	this_day = max_days ? time((time_t *)0)/SECSPERDAY : 0;
 	limit = this_day-max_days;
@@ -96,7 +80,15 @@ do_score(eaten,fd,max_days,type_str)
 		position->s_score = 0;
 		position->s_days = 0;
 	}
-	read(fd, (char *)sfile,FILE_SIZE);
+	nread = read(fd, (char *)sfile, FILE_SIZE);
+	if (nread == -1) {
+		perror("Error: do_score: read");
+		return FALSE;
+	}
+	if (nread > 0 && nread != FILE_SIZE) {
+		fprintf(stderr, "Error: do_score: score file truncated (%zd != %zd)\n", nread, FILE_SIZE);
+		return FALSE;
+	}
 	remove = 0;
 	if(score > 0) {
 		uid = getuid();
@@ -113,7 +105,7 @@ do_score(eaten,fd,max_days,type_str)
 			if(position == 0 && score > remove->s_score) position = remove;
 # ifndef ALLSCORES
 			if(remove->s_uid == uid) break;
-# endif ALLSCORES
+# endif
 		}
 		if(remove < eof) {
 			if(position == 0 && remove->s_days < limit) position = remove;
@@ -158,9 +150,9 @@ do_score(eaten,fd,max_days,type_str)
 		printf(
 # ifdef ALLSCORES
 			"\nTop %s Scores %s:\n",
-# else ALLSCORES
+# else
 			"\nTop %s Robotists %s:\n",
-# endif ALLSCORES
+# endif
 			NUMNAME,
 			type_str
 		);
@@ -171,7 +163,7 @@ do_score(eaten,fd,max_days,type_str)
 				putchar('>');
 			else  putchar(' ');
 			printf(
-				"%c%2d %9ld   %s: %s on level %d.",
+				"%c%2zd %9ld   %s: %s on level %d.",
 				position->s_days < limit ? '*' : ' ',
 				position-sfile+1,
 				position->s_score,
@@ -187,7 +179,7 @@ do_score(eaten,fd,max_days,type_str)
 	return (this != 0);
 }
 
-scorer()
+void scorer(void)
 {
 	static char tels[6];
 	if(free_teleports != old_free) {

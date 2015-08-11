@@ -1,8 +1,8 @@
 # just -lcurses for SYS V
-LIBS	= -lcurses -ltermcap
+LIBS	= -lncurses
 # add -DBSD42 for performance wins on 4.2 or better
 IFDEF	= -DBSD42
-CFLAGS  = $(IFDEF) #-g
+CFLAGS  = $(IFDEF) -O2 -Wall -Wextra #-g
 LINT	= lint
 LLFLAGS = -haxbc
 SHAR	= shar
@@ -11,10 +11,10 @@ HEADERS = robots.h
 SRC	= good.c main.c opt.c robot.c score.c user.c
 OBJS	= good.o main.o opt.o robot.o score.o user.o
 MAN	= robots.6
-MISC	= READ_ME Makefile
+MISC	= README Makefile
 DIST	= $(MISC) $(SRC) $(MAN) $(HEADERS)
-MANUAL  = /usr/man/man6/robots.6	# where the manual page goes
-BINARY  = /usr/sheriff/jpo/games			# Where the binary goes
+MANUAL  = /usr/share/man/man6/robots.6	# where the manual page goes
+BINARY  = /usr/games			# Where the binary goes
 
 robots: ${OBJS}
 	$(CC) $(CFLAGS) -o $@ ${OBJS} $(LIBS)

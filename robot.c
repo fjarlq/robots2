@@ -4,14 +4,8 @@
  * robot.c: most of the robot oriented stuff
  */
 
-struct robot {
-	bool	alive;	/* is this suker still kicking */
-	int	x;
-	int	y;
-	int	speed;  /* speed of robot 1 or 2 for now */
-} rbt_list[MAX_ROBOTS+1];
 
-put_robots()	/* place some robots */
+void put_robots(void)	/* place some robots */
 {
 	register struct robot *r, *end;
 	register int x, y;
@@ -38,8 +32,7 @@ put_robots()	/* place some robots */
 	}
 }
 
-robots(speed)	/* Troops, Troooooops advance! */
-int speed;
+void robots(int speed)	/* Troops, Troooooops advance! */
 {
 	register struct robot *r, *end;
 
@@ -89,8 +82,7 @@ int speed;
 }
 
 /* do two robots collide - if so - which two */
-collision(r, end)
-register struct robot *r, *end;
+void collision(struct robot *r, struct robot *end)
 {
 	register struct robot *find;
 
@@ -107,7 +99,7 @@ register struct robot *r, *end;
 	}
 }
 
-screwdriver()	/* dismantle those robots ... */
+void screwdriver(void)	/* dismantle those robots ... */
 {
 	register int test_x, test_y;
 	register char *m ;

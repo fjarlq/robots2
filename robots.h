@@ -2,15 +2,19 @@
  * robots.h: include file for the robots game
  */
 
-# include <curses.h>
+# include <ncurses.h>
 # include <signal.h>
 # include <pwd.h>
 # include <ctype.h>
 # include <sys/types.h>
 # include <errno.h>
+# include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
+# include <time.h>
 # ifdef	BSD42
 # include <sys/file.h>
-# endif BSD42
+# endif
 
 # define MIN_ROBOTS	10	/* no. of robots you start with */
 # define MAX_ROBOTS	500	/* maximum robots on a screen	*/
@@ -33,8 +37,8 @@
 # define RVPOS		47
 
 /* These you may want to fiddle with. Position of the two high score files */
-# define HOF_FILE	"/usr/sheriff/jpo/games/lib/robots_hof"
-# define TMP_FILE	"/usr/sheriff/jpo/games/lib/robots_tmp"
+# define HOF_FILE	"/var/games/robots_hof"
+# define TMP_FILE	"/var/games/robots_tmp"
 
 # define NUMSCORES	20		/* number of people to record */
 # define NUMNAME	"Twenty"	/* above spelt out */
@@ -58,6 +62,13 @@
 
 # define	abs(X)  ((X) < 0 ? -(X) : (X))
 # define	sign(X) ((X) < 0 ? -1 : (X) > 0)
+
+struct robot {
+	bool	alive;	/* is this suker still kicking */
+	int	x;
+	int	y;
+	int	speed;  /* speed of robot 1 or 2 for now */
+} rbt_list[MAX_ROBOTS+1];
 
 extern	char	whoami[];
 extern	char	my_user_name[];
@@ -87,10 +98,46 @@ extern	int	free_per_level;
 extern	int	old_free;
 
 extern	long	score;
-extern	long	lseek();
 
-extern	char	*strcpy ();
-extern	char	*strncpy ();
-extern	char	*malloc ();
-extern	char	*gets ();
-extern	char	*sprintf ();
+/* good.c */
+void good_moves(void);
+int isgood(int ty, int tx);
+int scan(int y, int x, int yi, int xi);
+int blocked(int my, int mx, int y, int x);
+
+/* main.c */
+void draw_screen(void);
+char readchar(void);
+void put_dots(void);
+void erase_dots(void);
+int xinc(char dir);
+int yinc(char dir);
+void munch(void);
+void quit(bool eaten);
+int rndx(void);
+int rndy(void);
+int rnd(int mod);
+void msg(char *message, ...);
+int lk_open(char *file, int mode);
+int lk_close(int fd, char *file);
+
+/* opt.c */
+void get_robot_opts(char *str);
+
+/* robot.c */
+void put_robots(void);
+void robots(int speed);
+void collision(struct robot *r, struct robot *end);
+void screwdriver(void);
+
+/* score.c */
+void scoring(bool eaten);
+int record_score(bool eaten, char *fname, int max_days, char *type_str);
+int do_score(bool eaten, int fd, int max_days, char *type_str);
+void scorer(void);
+
+/* user.c */
+void command(void);
+int read_com(void);
+void do_move(char dir);
+int move_heap(char dir);
